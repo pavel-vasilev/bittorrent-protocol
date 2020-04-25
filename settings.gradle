@@ -1,0 +1,5 @@
+rootProject.name = 'bittorrent-protocol'
+
+include ":client"
+include ":server"
+include ":sample"

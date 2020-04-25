@@ -1,0 +1,8 @@
+group 'com.pvasilev'
+version '1.0'
+
+subprojects {
+    repositories {
+        mavenCentral()
+    }
+}
