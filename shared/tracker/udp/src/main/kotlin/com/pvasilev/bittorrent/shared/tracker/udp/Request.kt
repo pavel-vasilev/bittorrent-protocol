@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 
 sealed class Request {
-    class Connect(private val transactionId: Int) : Request() {
+    class Connect(val transactionId: Int) : Request() {
         override fun toByteArray(): ByteArray {
             val os = ByteArrayOutputStream(16)
             val dos = DataOutputStream(os)
@@ -16,15 +16,15 @@ sealed class Request {
     }
 
     class Announce(
-        private val connectionId: Long,
-        private val transactionId: Int,
-        private val infoHash: String,
-        private val peerId: String,
-        private val downloaded: Long,
-        private val left: Long,
-        private val uploaded: Long,
-        private val numWant: Int,
-        private val port: Int
+        val connectionId: Long,
+        val transactionId: Int,
+        val infoHash: String,
+        val peerId: String,
+        val downloaded: Long,
+        val left: Long,
+        val uploaded: Long,
+        val numWant: Int,
+        val port: Int
     ) : Request() {
         override fun toByteArray(): ByteArray {
             val os = ByteArrayOutputStream(16)
@@ -32,8 +32,8 @@ sealed class Request {
             dos.writeLong(connectionId)
             dos.writeInt(ACTION_ANNOUNCE)
             dos.writeInt(transactionId)
-            dos.writeUTF(infoHash)
-            dos.writeUTF(peerId)
+            dos.writeBytes(infoHash)
+            dos.writeBytes(peerId)
             dos.writeLong(downloaded)
             dos.writeLong(left)
             dos.writeLong(uploaded)
@@ -47,9 +47,9 @@ sealed class Request {
     }
 
     class Scrape(
-        private val connectionId: Long,
-        private val transactionId: Int,
-        private val infoHashes: List<String>
+        val connectionId: Long,
+        val transactionId: Int,
+        val infoHashes: List<String>
     ) : Request() {
         override fun toByteArray(): ByteArray {
             val os = ByteArrayOutputStream(16 + 20 * infoHashes.size)
@@ -57,7 +57,7 @@ sealed class Request {
             dos.writeLong(connectionId)
             dos.writeInt(ACTION_SCRAPE)
             dos.writeInt(transactionId)
-            infoHashes.forEach { dos.writeUTF(it) }
+            infoHashes.forEach { dos.writeBytes(it) }
             return os.toByteArray()
         }
     }
