@@ -23,4 +23,24 @@ class BencodingTest {
 
         assertEquals(number, decoded)
     }
+
+    @Test
+    fun `WHEN decode encoded list EXPECT original list`() {
+        val list = listOf(1, 2, 3)
+
+        val encoded = encodeList(list)
+        val decoded = decodeList(encoded)
+
+        assertEquals(list, decoded)
+    }
+
+    @Test
+    fun `WHEN decode encoded map EXPECT original map`() {
+        val map = mapOf("hello" to "world")
+
+        val encoded = encodeMap(map)
+        val decoded = decodeMap(encoded)
+
+        assertEquals(map, decoded)
+    }
 }
