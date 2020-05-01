@@ -101,7 +101,7 @@ fun decodeMap(bytes: ByteArray): Map<Any, Any> {
 
 fun decodeMap(text: String): Map<Any, Any> = decodeMap(text.toByteArray())
 
-private fun ByteArray.nextToken(startIndex: Int = 0): ByteArray =
+fun ByteArray.nextToken(startIndex: Int = 0): ByteArray =
     when (this[startIndex]) {
         DICTIONARY, LIST -> {
             var endIndex = startIndex + 1
