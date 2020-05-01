@@ -9,6 +9,7 @@ import java.time.Instant
 data class MetaInfo(
     val announce: String,
     val infoHash: String,
+    val info: Info,
     val comment: String?,
     val createdBy: String?,
     val createdAt: Instant?
@@ -35,6 +36,7 @@ data class MetaInfo(
             return MetaInfo(
                 announce = map[KEY_ANNOUNCE] as String,
                 infoHash = infoHash,
+                info = (map[KEY_INFO] as Map<String, Any>).let(Info.Companion::from),
                 comment = map[KEY_COMMENT] as String?,
                 createdBy = map[KEY_CREATED_BY] as String?,
                 createdAt = (map[KEY_CREATION_DATE] as Int?)?.let(Int::toLong)?.let(Instant::ofEpochSecond)

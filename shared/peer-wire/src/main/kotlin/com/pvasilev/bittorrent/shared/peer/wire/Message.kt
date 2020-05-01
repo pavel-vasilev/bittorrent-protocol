@@ -37,6 +37,7 @@ sealed class Message {
                 buffer.startsWith(MESSAGE_REQUEST) -> Request.from(buffer)
                 buffer.startsWith(MESSAGE_CANCEL) -> Cancel.from(buffer)
                 buffer.startsWith(MESSAGE_PORT) -> Port.from(buffer)
+                buffer[4] == 0x5.toByte() -> Bitfield.from(buffer)
                 buffer[4] == 0x7.toByte() -> Piece.from(buffer)
                 else -> throw IllegalStateException()
             }
@@ -65,7 +66,7 @@ sealed class Message {
         override fun toByteArray(): ByteArray = MESSAGE_NOT_INTERESTED
     }
 
-    class Handshake(val infoHash: String, val peerId: String) : Message() {
+    data class Handshake(val infoHash: String, val peerId: String) : Message() {
         companion object {
             fun from(buffer: ByteArray): Handshake {
                 val dis = DataInputStream(ByteArrayInputStream(buffer))
@@ -88,7 +89,7 @@ sealed class Message {
         }
     }
 
-    class Request(val pieceIndex: Int, val offset: Int, val length: Int) : Message() {
+    data class Request(val pieceIndex: Int, val offset: Int, val length: Int) : Message() {
         companion object {
             fun from(buffer: ByteArray): Request {
                 val dis = DataInputStream(ByteArrayInputStream(buffer))
@@ -111,7 +112,7 @@ sealed class Message {
         }
     }
 
-    class Piece(val pieceIndex: Int, val offset: Int, val block: ByteArray) : Message() {
+    data class Piece(val pieceIndex: Int, val offset: Int, val block: ByteArray) : Message() {
         companion object {
             fun from(buffer: ByteArray): Piece {
                 val dis = DataInputStream(ByteArrayInputStream(buffer))
@@ -136,7 +137,28 @@ sealed class Message {
         }
     }
 
-    class Cancel(val pieceIndex: Int, val offset: Int, val length: Int) : Message() {
+    data class Bitfield(val flags: ByteArray) : Message() {
+        companion object {
+            fun from(buffer: ByteArray): Bitfield {
+                val dis = DataInputStream(ByteArrayInputStream(buffer))
+                val length = dis.readInt() - 1
+                dis.skip(1)
+                val flags = dis.readNBytes(length)
+                return Bitfield(flags)
+            }
+        }
+
+        override fun toByteArray(): ByteArray {
+            val os = ByteArrayOutputStream()
+            val dos = DataOutputStream(os)
+            dos.writeInt(1 + flags.size)
+            dos.writeByte(5)
+            dos.write(flags)
+            return os.toByteArray()
+        }
+    }
+
+    data class Cancel(val pieceIndex: Int, val offset: Int, val length: Int) : Message() {
         companion object {
             fun from(buffer: ByteArray): Cancel {
                 val dis = DataInputStream(ByteArrayInputStream(buffer))
@@ -159,7 +181,7 @@ sealed class Message {
         }
     }
 
-    class Have(val pieceIndex: Int) : Message() {
+    data class Have(val pieceIndex: Int) : Message() {
         companion object {
             fun from(buffer: ByteArray): Have {
                 val dis = DataInputStream(ByteArrayInputStream(buffer))
@@ -178,7 +200,7 @@ sealed class Message {
         }
     }
 
-    class Port(val number: Short) : Message() {
+    data class Port(val number: Short) : Message() {
         companion object {
             fun from(buffer: ByteArray): Port {
                 val dis = DataInputStream(ByteArrayInputStream(buffer))

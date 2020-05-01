@@ -3,7 +3,7 @@ package com.pvasilev.bittorrent.shared.tracker.udp
 import java.io.ByteArrayInputStream
 import java.io.DataInputStream
 import java.net.Inet4Address
-import java.net.InetAddress
+import java.net.InetSocketAddress
 
 sealed class Response {
     class Connect(val transactionId: Int, val connectionId: Long) : Response() {
@@ -24,7 +24,7 @@ sealed class Response {
         val interval: Int,
         val leechers: Int,
         val seeders: Int,
-        val addresses: List<InetAddress>
+        val addresses: List<InetSocketAddress>
     ) : Response() {
         companion object {
             fun from(buffer: ByteArray): Announce {
@@ -36,8 +36,8 @@ sealed class Response {
                 val seeders = dis.readInt()
                 val addresses = (0 until dis.available() / 6).map {
                     val addr = dis.readNBytes(4)
-                    dis.skip(2)
-                    Inet4Address.getByAddress(addr)
+                    val port = dis.readUnsignedShort()
+                    InetSocketAddress(Inet4Address.getByAddress(addr), port)
                 }
                 if (actionId != ACTION_ANNOUNCE) throw IllegalStateException()
                 return Announce(transactionId, interval, leechers, seeders, addresses)

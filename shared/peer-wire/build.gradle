@@ -3,5 +3,6 @@ plugins {
 }
 
 dependencies {
+    implementation project(":shared:torrent")
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
