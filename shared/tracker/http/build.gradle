@@ -5,5 +5,5 @@ plugins {
 dependencies {
     implementation project(":shared:bencoding")
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    testImplementation "junit:junit:4.12"
+    implementation "com.squareup.retrofit2:retrofit:2.8.1"
 }
