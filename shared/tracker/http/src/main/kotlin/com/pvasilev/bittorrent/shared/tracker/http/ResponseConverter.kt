@@ -15,7 +15,7 @@ sealed class ResponseConverter : Converter<ResponseBody, Response> {
 }
 
 private fun convertWithError(body: ResponseBody, mapper: (Map<Any, Any>) -> Response): Response {
-    val map = decodeMap(body.bytes())
+    val map = decodeMap(body.string())
     val failure = map["failure reason"] as String?
 
     return if (failure != null) {

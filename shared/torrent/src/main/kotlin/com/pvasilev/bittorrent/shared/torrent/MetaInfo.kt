@@ -24,7 +24,7 @@ data class MetaInfo(
         fun from(file: File): MetaInfo {
             val bytes = file.readBytes()
 
-            val map = decodeMap(bytes)
+            val map = decodeMap(bytes, Charsets.ISO_8859_1)
 
             val startIndex = bytes.toList().windowed(4).indexOf(KEY_INFO.map(Char::toByte)) + 4
             val info = bytes.nextToken(startIndex)

@@ -1,5 +1,7 @@
 package com.pvasilev.bittorrent.shared.bencoding
 
+import java.nio.charset.Charset
+
 private const val DICTIONARY: Byte = 100
 private const val LIST: Byte = 108
 private const val INTEGER: Byte = 105
@@ -10,10 +12,10 @@ private const val COLON: Byte = 58
 
 fun encodeString(text: String) = "${text.length}:$text"
 
-fun decodeString(bytes: ByteArray) = bytes.sliceArray(bytes.indexOf(COLON) + 1 until bytes.size)
-    .toString(Charsets.UTF_8)
+fun decodeString(bytes: ByteArray, charset: Charset) = bytes.sliceArray(bytes.indexOf(COLON) + 1 until bytes.size)
+    .toString(charset)
 
-fun decodeString(text: String): String = decodeString(text.toByteArray())
+fun decodeString(text: String): String = decodeString(text.toByteArray(), Charsets.UTF_8)
 
 fun encodeInt(number: Int) = "i${number}e"
 
@@ -35,7 +37,7 @@ fun encodeList(list: List<*>): String = list.joinToString(prefix = "l", separato
     }
 }
 
-fun decodeList(bytes: ByteArray): List<Any> {
+fun decodeList(bytes: ByteArray, charset: Charset): List<Any> {
     val result = mutableListOf<Any>()
     var index = 1
 
@@ -43,10 +45,10 @@ fun decodeList(bytes: ByteArray): List<Any> {
         val token = bytes.sliceArray(index until bytes.size).nextToken()
 
         val value = when (bytes[index]) {
-            DICTIONARY -> decodeMap(token)
-            LIST -> decodeList(token)
+            DICTIONARY -> decodeMap(token, charset)
+            LIST -> decodeList(token, charset)
             INTEGER -> decodeInt(token)
-            in ZERO..NINE -> decodeString(token)
+            in ZERO..NINE -> decodeString(token, charset)
             else -> throw IllegalStateException()
         }
 
@@ -57,7 +59,7 @@ fun decodeList(bytes: ByteArray): List<Any> {
     return result
 }
 
-fun decodeList(text: String): List<Any> = decodeList(text.toByteArray())
+fun decodeList(text: String): List<Any> = decodeList(text.toByteArray(), Charsets.UTF_8)
 
 fun encodeMap(map: Map<*, *>): String = map.asIterable()
     .joinToString(prefix = "d", separator = "", postfix = "e") { (key, value) ->
@@ -70,7 +72,7 @@ fun encodeMap(map: Map<*, *>): String = map.asIterable()
         }
     }
 
-fun decodeMap(bytes: ByteArray): Map<Any, Any> {
+fun decodeMap(bytes: ByteArray, charset: Charset): Map<Any, Any> {
     val result = mutableMapOf<Any, Any>()
     var index = 1
     var key: Any? = null
@@ -79,10 +81,10 @@ fun decodeMap(bytes: ByteArray): Map<Any, Any> {
         val token = bytes.sliceArray(index until bytes.size).nextToken()
 
         val value = when (bytes[index]) {
-            DICTIONARY -> decodeMap(token)
-            LIST -> decodeList(token)
+            DICTIONARY -> decodeMap(token, charset)
+            LIST -> decodeList(token, charset)
             INTEGER -> decodeInt(token)
-            in ZERO..NINE -> decodeString(token)
+            in ZERO..NINE -> decodeString(token, charset)
             else -> throw IllegalStateException()
         }
 
@@ -99,7 +101,7 @@ fun decodeMap(bytes: ByteArray): Map<Any, Any> {
     return result
 }
 
-fun decodeMap(text: String): Map<Any, Any> = decodeMap(text.toByteArray())
+fun decodeMap(text: String): Map<Any, Any> = decodeMap(text.toByteArray(), Charsets.UTF_8)
 
 fun ByteArray.nextToken(startIndex: Int = 0): ByteArray =
     when (this[startIndex]) {
