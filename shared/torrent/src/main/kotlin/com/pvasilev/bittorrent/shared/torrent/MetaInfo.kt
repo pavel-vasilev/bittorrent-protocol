@@ -31,7 +31,7 @@ data class MetaInfo(
 
             val digester = MessageDigest.getInstance("SHA-1")
             val digest = digester.digest(info)
-            val infoHash = digest.joinToString(separator = "") { String.format("%02x", it) }
+            val infoHash = encodeHex(digest)
 
             return MetaInfo(
                 announce = map[KEY_ANNOUNCE] as String,

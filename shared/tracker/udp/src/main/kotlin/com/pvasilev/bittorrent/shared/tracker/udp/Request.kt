@@ -1,5 +1,6 @@
 package com.pvasilev.bittorrent.shared.tracker.udp
 
+import com.pvasilev.bittorrent.shared.torrent.decodeHex
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 
@@ -32,7 +33,7 @@ sealed class Request {
             dos.writeLong(connectionId)
             dos.writeInt(ACTION_ANNOUNCE)
             dos.writeInt(transactionId)
-            dos.writeBytes(infoHash)
+            dos.write(decodeHex(infoHash))
             dos.writeBytes(peerId)
             dos.writeLong(downloaded)
             dos.writeLong(left)
@@ -57,7 +58,7 @@ sealed class Request {
             dos.writeLong(connectionId)
             dos.writeInt(ACTION_SCRAPE)
             dos.writeInt(transactionId)
-            infoHashes.forEach { dos.writeBytes(it) }
+            infoHashes.forEach { dos.write(decodeHex(it)) }
             return os.toByteArray()
         }
     }

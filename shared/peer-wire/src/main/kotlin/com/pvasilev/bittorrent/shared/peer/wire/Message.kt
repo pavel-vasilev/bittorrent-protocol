@@ -1,5 +1,6 @@
 package com.pvasilev.bittorrent.shared.peer.wire
 
+import com.pvasilev.bittorrent.shared.torrent.decodeHex
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
@@ -83,7 +84,7 @@ sealed class Message {
             val dos = DataOutputStream(os)
             dos.write(MESSAGE_HANDSHAKE)
             dos.writeLong(0)
-            dos.writeBytes(infoHash)
+            dos.write(decodeHex(infoHash))
             dos.writeBytes(peerId)
             return os.toByteArray()
         }
