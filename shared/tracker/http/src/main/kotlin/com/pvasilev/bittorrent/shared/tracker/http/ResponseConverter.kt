@@ -15,13 +15,12 @@ sealed class ResponseConverter : Converter<ResponseBody, Response> {
 }
 
 private fun convertWithError(body: ResponseBody, mapper: (Map<Any, Any>) -> Response): Response {
-    val map = decodeMap(body.string())
+    val map = decodeMap(body.bytes(), Charsets.ISO_8859_1)
     val failure = map["failure reason"] as String?
 
     return if (failure != null) {
         throw Exception(failure)
     } else {
         mapper(map)
-        Response.Scrape.from(map)
     }
 }
